@@ -30,14 +30,88 @@ admin.get('/yzm', (req, res) => {
     })
     req.session.yzm = text.toLowerCase();
     myYzm = req.session.yzm
-        // console.log(req.session)
+        console.log(req.session)
     res.type('svg')
     res.write(data)
     res.end()
 })
-
+// 测试
+admin.get('/adminLogin', async(req, res) => {
+    console.log(req.session)
+    res.json(req.session)
+    const { user, paw, yzm } = req.body
+    if (user.trim().length == 0) {
+        res.json({
+            meta: {
+                status: 400,
+                msg: '用户名为空'
+            }
+        })
+        return
+    }
+    if (paw.trim().length == 0) {
+        res.json({
+            meta: {
+                status: 400,
+                msg: '密码为空'
+            }
+        })
+        return
+    }
+    if (yzm.trim().length == 0) {
+        res.json({
+            meta: {
+                status: 400,
+                msg: '验证码为空'
+            }
+        })
+        return
+    }
+    var vv = req.session
+        // console.log(yzm.trim().toLowerCase(), myYzm, yzm.trim().toLowerCase() != myYzm)
+        // if (yzm.trim().toLowerCase() != myYzm) {
+        //     // console.log(yzm.trim(), req.session)
+        //     res.json({
+        //         meta: {
+        //             status: 400,
+        //             msg: '验证码错误'
+        //         },
+        //         vv
+        //     })
+        //     return
+        // }
+    const admin = await Admin.findOne({ user })
+    if (admin) {
+        if (admin.paw == paw) {
+            res.json({
+                meta: {
+                    status: 200,
+                    msg: '登录成功'
+                }
+            })
+            return
+        } else {
+            res.send({
+                meta: {
+                    status: 400,
+                    msg: '用户名或密码错误'
+                }
+            })
+            return
+        }
+    } else {
+        res.send({
+            meta: {
+                status: 400,
+                msg: '用户名或密码错误'
+            }
+        })
+        return
+    }
+})
 // 管理员登录
 admin.post('/adminLogin', async(req, res) => {
+    console.log(req.session, 123)
     const { user, paw, yzm } = req.body
     if (user.trim().length == 0) {
         res.json({
